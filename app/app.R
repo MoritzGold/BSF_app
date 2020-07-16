@@ -28,19 +28,23 @@ ui <- dashboardPage(
   dashboardHeader(),
   
   dashboardSidebar(
-    menuItem("Tool1", tabName = "Tool1")
+    sidebarMenu(
+      menuItem("Introduction", icon = icon("info-circle")),
+      menuItem("Tool 1: PCA Biplot", tabName = "Tool1", icon = icon("map")),
+      menuItem("Tool 2: ...")
+    )
   ),
   
   dashboardBody(
-    
+  
     # input tool 1
     tabItem(tabName = "Tool1",
             fluidRow(
               box(width = 6, title = "Substrates",
-              checkboxGroupInput(inputId = "Substrate_groups", 
-                                 label = "Select your input substrates for the PCA", 
-                                 choices =  levels(as.factor(biowaste_nutrients$Diet_group)) , 
-                                 selected = "Food waste")
+                  checkboxGroupInput(inputId = "Substrate_groups", 
+                                     label = "Select your input substrates for the PCA", 
+                                     choices =  levels(as.factor(biowaste_nutrients$Diet_group)) , 
+                                     selected = "Food waste")
               ),
               box(width = 6, title = "PCA - Biplot", plotOutput("PCA_substrate_groups"))
             )
