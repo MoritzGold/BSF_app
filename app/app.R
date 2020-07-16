@@ -36,18 +36,20 @@ ui <- dashboardPage(
     # input tool 1
     tabItem(tabName = "Tool1",
             fluidRow(
+              box(width = 6, title = "Substrates",
               checkboxGroupInput(inputId = "Substrate_groups", 
-                                 label = "Substrate groups", 
+                                 label = "Select your input substrates for the PCA", 
                                  choices =  levels(as.factor(biowaste_nutrients$Diet_group)) , 
                                  selected = "Food waste")
-            ),
-            fluidRow(
-              plotOutput("PCA_substrate_groups")
-            ),
-            fluidRow(
-              textOutput("txt"),
-              tableOutput("table")
+              ),
+              box(width = 6, title = "PCA - Biplot", plotOutput("PCA_substrate_groups"))
             )
+            
+            # Output of two tests written on server side
+            # fluidRow(
+            #   textOutput("txt"),
+            #   tableOutput("table")
+            # )
             
     )
   )
@@ -61,16 +63,18 @@ server <- function(input, output) {
   
   substr_groups <- reactive({ paste(input$Substrate_groups, collapse = ", ") })
   
-  output$txt <- renderText({
-    paste("You chose", substr_groups())
-  })
+  # A test to check if the selected checkboxes work correctly
+  
+  # output$txt <- renderText({
+  #   paste("You chose", substr_groups())
+  # })
   
   # select Substrate groups based on input
   
   biowaste_nutrients_subset <- reactive({
     biowaste_nutrients %>% 
       select(-Glucose,-Starch,-Ash_insoluable) %>% 
-      filter(Diet_group %in% input$Substrate_groups)  ## access the input Id with 'input$foo'
+      filter(Diet_group %in% input$Substrate_groups)  ## here was an issue: access the input Id with "input$"
   })
   
   biowaste_nutrients_clean <- reactive({
@@ -84,9 +88,12 @@ server <- function(input, output) {
     PCA(biowaste_nutrients_clean(), scale.unit = TRUE)
   })
   
-  output$table <- renderTable({
-    biowaste_nutrients_clean()
-  })
+  
+  # A test to see if the table renders as wanted
+  
+  # output$table <- renderTable({
+  #   biowaste_nutrients_clean()
+  # })
   
   
   # produce output based on manipulated data
