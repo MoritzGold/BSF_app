@@ -48,7 +48,6 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       menuItem("Introduction", tabName = "intro", icon = icon("info-circle")),
-      menuItem("PCA Biplot", tabName = "tool1", icon = icon("map")),
       menuItem("Nutrient composition", tabName = "tool2",icon=icon("chart-pie")),
       menuItem("Substrate mixture formulation", tabName = "tool3",icon=icon("mortar-pestle")),
       menuItem("Conversion performance", tabName = "tool4", icon=icon("char-bar"))
@@ -73,27 +72,6 @@ ui <- dashboardPage(
                 )
               )),
       
-      
-      # input tool 1
-      tabItem(tabName = "tool1",
-              fluidRow(
-                box(width = 6, title = "Substrates",
-                    checkboxGroupInput(inputId = "Substrate_groups", 
-                                       label = "Select your input substrates for the PCA", 
-                                       choices =  levels(as.factor(biowaste_nutrients$Diet_group)) , 
-                                       selected = "Food waste")
-                ),
-                box(width = 6, title = "PCA - Biplot", plotOutput("PCA_substrate_groups"))
-              )
-              
-              # Output of two tests written on server side
-              # fluidRow(
-              #   textOutput("txt"),
-              #   tableOutput("table")
-              # )
-              
-      ), # close tab item tool1
-      
       # input tool 2
       tabItem(tabName = "tool2",
               
@@ -106,9 +84,20 @@ ui <- dashboardPage(
                     column(width = 6, checkboxGroupInput(inputId = "Nutrient_parameter",label = "Nutrient parameter",
                                                          choices = levels(as.factor(biowaste_nutrients_narrow$parameter)),selected = "Ash")),
                 ),
-                box(width = 6, title = "Write a title",
-                    plotOutput("Boxplot_substrate_groups"),
+                
+                box(width = 6, title = "PCA - Biplot", 
+                    plotOutput("PCA_substrate_groups")
+                
+                
                 )
+              ),
+              
+              # second row
+              
+              fluidRow(
+                box(width = 12, title = "Write a title",
+                    plotOutput("Boxplot_substrate_groups")
+              )
               ),
               
               # second row
