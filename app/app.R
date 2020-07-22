@@ -41,7 +41,7 @@ performance_narrow <- read.xlsx(xlsxFile = here::here("data/performance_sum.xlsx
 
 ui <- dashboardPage(
   
-  dashboardHeader(title = "Give Me a Title!"),
+  dashboardHeader(title = "BSFL-Explorer"),
   
   dashboardSidebar(
     sidebarMenu(
@@ -61,12 +61,12 @@ ui <- dashboardPage(
       tabItem(tabName = "intro",
               fluidRow(
                 box(width = 12, 
-                    h1("Introduction to App: 'NAME'"),
-                    h2("Subtitle"),
+                    h1("Introduction to App: 'BSFL-Explorer'"),
+                    h2("Efficient substrates for black soldier fly larvae (BSFL) biowaste "),
                     
                     hr(),
                     
-                    textOutput(outputId = "introtext")
+                    # textOutput(outputId = "introtext")
                 )
               )),
       
@@ -164,14 +164,14 @@ server <- function(input, output,session) {
   
   # Introduction page -------------------------------------------------------
   
-  output$introtext <- renderText(
-    "I suggest you write an introduction text to you app here. Cite relevant papers and add info that\n
-  helps people understand how the app works and what the tools are. As you can see, I have no clue how to do that nicely,\n
-  but search engines and StackOverflow will help you.")
+  # output$introtext <- renderText(
+  #   "I suggest you write an introduction text to you app here. Cite relevant papers and add info that\n
+  # helps people understand how the app works and what the tools are. As you can see, I have no clue how to do that nicely,\n
+  # but search engines and StackOverflow will help you.")
   
-  
-  # Tool 1 ------------------------------------------------------------------
-  
+
+  # Tool 2 ------------------------------------------------------------------
+
   substr_groups <- reactive({ paste(input$Substrate_groups, collapse = ", ") })
   
   # A test to check if the selected checkboxes work correctly
@@ -211,6 +211,11 @@ server <- function(input, output,session) {
   
   output$PCA_substrate_groups <- renderPlot({
     
+    # Check for required value in Substrate_groups and Nutrient_parameter before calculating plot
+    
+    req(input$Substrate_groups != 0)
+    req(input$Nutrient_parameter != 0)
+    
     fviz_pca_biplot(pca_biowaste_nutrients(),
                     geom.ind = "point",
                     fill.ind = biowaste_nutrients_subset()$Diet_group,
@@ -225,10 +230,7 @@ server <- function(input, output,session) {
                     repel = TRUE)
   })
   
-  
-  
-  # Tool 2 ------------------------------------------------------------------
-  
+    
   biowaste_nutrients_narrow_subset <-
     
     reactive({
@@ -246,7 +248,7 @@ server <- function(input, output,session) {
   
   biowaste_nutrients_stats <- reactive({
     biowaste_nutrients_narrow_subset() %>% 
-      group_by(Diet_group,parameter) %>% 
+      group_by(Diet_group,Nutrient_parameter) %>% 
       summarise(n = n(),
                 mean = round(mean(value,na.rm = TRUE), 1),
                 sd = round(mean(value,na.rm = TRUE), 1),
@@ -259,6 +261,11 @@ server <- function(input, output,session) {
   # produce boxplot output based on manipulated data
   
   output$Boxplot_substrate_groups <- renderPlot({
+    
+    # Check for required value in Substrate_groups and Nutrient_parameter before calculating plot
+    
+    req(input$Substrate_groups != 0)
+    req(input$Nutrient_parameter != 0)
     
     biowaste_nutrients_narrow_subset()  %>% 
       ggplot(aes(Diet_group,value)) +
