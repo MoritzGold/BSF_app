@@ -18,9 +18,15 @@ library(factoextra)
 
 # load data ---------------------------------------------------------------
 
-biowaste_nutrients <- read.xlsx(xlsxFile = here::here("data/waste_sum.xlsx"), sheet = 1) 
+## data for tool 1
 
+biowaste_nutrients <- read.xlsx(xlsxFile = here::here("data/waste_sum.xlsx"), sheet = 1) 
 performance <- read.xlsx(xlsxFile = here::here("data/performance_sum.xlsx"), sheet = 1)
+
+## data for tool 2
+
+biowaste_nutrients_narrow <- read.xlsx(xlsxFile =here::here("data/waste_sum.xlsx"),sheet = 1) %>% 
+  gather(7:14,key = parameter,value = value) 
 
 # ui ----------------------------------------------------------------------
 
@@ -79,12 +85,25 @@ ui <- dashboardPage(
       
       # input tool 1
       tabItem(tabName = "tool2",
+              
+              # first row
               fluidRow(
                 box(width = 6, title = "Write a title",
+                    column(width = 6, checkboxGroupInput(inputId = "Substrate_groups", label = "Substrate groups",
+                                       choices = levels(as.factor(biowaste_nutrients_narrow$Diet_group)),selected = "Food waste")),
                     
+                    column(width = 6, checkboxGroupInput(inputId = "Nutrient_parameter",label = "Nutrient parameter",
+                                       choices = levels(as.factor(biowaste_nutrients_narrow$parameter)),selected = "Ash")),
                 ),
                 box(width = 6, title = "Write a title",
-                    
+                    plotOutput("Boxplot_substrate_groups"),
+                )
+              ),
+
+              # second row
+              fluidRow(
+                box(width = 12, title = "Write a title",
+                    dataTableOutput("Nutrient_composition_summary")
                 )
               )
       ), # close tab item tool2
@@ -122,14 +141,17 @@ ui <- dashboardPage(
 
 server <- function(input, output) { 
   
-  # Introduction Page
-  
+
+# Introduction page -------------------------------------------------------
+
   output$introtext <- renderText(
     "I suggest you write an introduction text to you app here. Cite relevant papers and add info that\n
   helps people understand how the app works and what the tools are. As you can see, I have no clue how to do that nicely,\n
   but search engines and StackOverflow will help you.")
   
-  
+
+# Tool 1 ------------------------------------------------------------------
+
   substr_groups <- reactive({ paste(input$Substrate_groups, collapse = ", ") })
   
   # A test to check if the selected checkboxes work correctly
@@ -182,6 +204,57 @@ server <- function(input, output) {
                     alpha.var= 0.5,
                     repel = TRUE)
   })
+  
+  
+
+# Tool 2 ------------------------------------------------------------------
+
+  biowaste_nutrients_narrow_subset <-
+    
+    reactive({
+      
+      # select Substrate groups based on input
+      
+      biowaste_nutrients_narrow %>% 
+        
+        filter(Diet_group %in% input$Substrate_groups & parameter %in% input$Nutrient_parameter)
+      
+    })
+  
+  
+  # calculate descriptive statistics
+  
+  biowaste_nutrients_stats <- reactive({
+    biowaste_nutrients_narrow_subset() %>% 
+      group_by(Diet_group,parameter) %>% 
+      summarise(n = n(),
+                mean = round(mean(value,na.rm = TRUE), 1),
+                sd = round(mean(value,na.rm = TRUE), 1),
+                median = round(median(value,na.rm = TRUE), 1),
+                max = round(max(value,na.rm = TRUE), 1),
+                min = round(min(value,na.rm = TRUE), 1))
+  })
+  
+  
+  # produce boxplot output based on manipulated data
+  
+  output$Boxplot_substrate_groups <- renderPlot({
+    
+    biowaste_nutrients_narrow_subset()  %>% 
+      ggplot(aes(Diet_group,value)) +
+      geom_boxplot() +
+      #geom_point() +
+      ## Alternative which shows the overlying points a little nicer
+      geom_jitter(width = 0.1) + 
+      labs(y = "% dm", x="", title = "Biowaste nutrients") +
+      facet_wrap(~parameter) +
+      coord_flip()
+  })
+  
+  
+  # produce summmary table 
+  
+  output$Nutrient_composition_summary <- renderDT({biowaste_nutrients_stats()})  
 }
 
 
