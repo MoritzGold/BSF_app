@@ -326,6 +326,8 @@ server <- function(input, output,session) {
   
   output$Boxplot_substrate_groups_tool4 <- renderPlot({
     
+    req(input$Performance_indicator_tool4 != 0)
+    
     performance_summary_narrow_subset()  %>% 
       ggplot(aes(Diet_group, value)) +
       geom_boxplot() +
