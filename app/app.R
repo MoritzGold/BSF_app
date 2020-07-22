@@ -14,6 +14,7 @@ library(tidyverse)
 library(ggpubr)
 library(FactoMineR)
 library(factoextra)
+library(DT)
 
 
 # load data ---------------------------------------------------------------
@@ -47,10 +48,10 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       menuItem("Introduction", tabName = "intro", icon = icon("info-circle")),
-      menuItem("Tool 1: PCA Biplot", tabName = "tool1", icon = icon("map")),
-      menuItem("Tool 2: ...", tabName = "tool2"),
-      menuItem("Tool 3: ...", tabName = "tool3"),
-      menuItem("Tool 4: ...", tabName = "tool4")
+      menuItem("PCA Biplot", tabName = "tool1", icon = icon("map")),
+      menuItem("Nutrient composition", tabName = "tool2",icon=icon("chart-pie")),
+      menuItem("Substrate mixture formulation", tabName = "tool3",icon=icon("mortar-pestle")),
+      menuItem("Conversion performance", tabName = "tool4", icon=icon("char-bar"))
     )
   ),
   
