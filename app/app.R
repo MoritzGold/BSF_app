@@ -159,7 +159,7 @@ ui <- dashboardPage(
 
 # server ------------------------------------------------------------------
 
-server <- function(input, output) { 
+server <- function(input, output,session) { 
   
   
   # Introduction page -------------------------------------------------------
@@ -282,6 +282,17 @@ server <- function(input, output) {
   # TODO: Add server parts of tool 3
   
   # Tool 4 ------------------------------------------------------------------
+  
+  observe({
+    
+    Performance_indicator_availability <- performance_narrow %>% filter(Diet_group  %in% input$Substrate_groups_tool4)
+    
+    updateCheckboxGroupInput(session, "Performance_indicator_tool4",
+                             label = "Performance indicator",
+                             choices = levels(as.factor(Performance_indicator_availability$Performance_indicator))
+    )
+  })
+  
   
   performance_summary_narrow_subset <-
     
