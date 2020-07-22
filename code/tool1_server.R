@@ -1,3 +1,16 @@
+
+# description -------------------------------------------------------------
+
+
+
+# libraries ---------------------------------------------------------------
+
+library(openxlsx)
+library(magrittr)
+library(dplyr)
+library(FactoMineR)
+library(factoextra)
+
 # load data
 
 biowaste_nutrients <- read.xlsx(xlsxFile =here::here("data/waste_sum.xlsx"),sheet = 1) 
@@ -23,6 +36,7 @@ biowaste_nutrients_clean <-
 # run PCA
 
 pca_biowaste_nutrients <- PCA(biowaste_nutrients_clean,scale.unit=TRUE)
+
 
 # plot PCA
 
