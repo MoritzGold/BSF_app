@@ -26,48 +26,108 @@ performance <- read.xlsx(xlsxFile = here::here("data/performance_sum.xlsx"), she
 
 ui <- dashboardPage(
   
-  dashboardHeader(),
+  dashboardHeader(title = "Give Me a Title!"),
   
   dashboardSidebar(
     sidebarMenu(
-      menuItem("Introduction", icon = icon("info-circle")),
-      menuItem("PCA Biplot", tabName = "Tool1", icon = icon("map")),
-      menuItem("Nutrient composition", tabName = "Tool2",icon = icon("chart-pie")),
-      menuItem("Substrate mixture formulation", tabName = "Tool3",icon = icon("mortar-pestle")),
-      menuItem("Conversion performance", tabName = "Tool4",icon = icon("chart-bar"))
+      menuItem("Introduction", tabName = "intro", icon = icon("info-circle")),
+      menuItem("Tool 1: PCA Biplot", tabName = "tool1", icon = icon("map")),
+      menuItem("Tool 2: ...", tabName = "tool2"),
+      menuItem("Tool 3: ...", tabName = "tool3"),
+      menuItem("Tool 4: ...", tabName = "tool4")
     )
   ),
   
-
-  
   dashboardBody(
-  
-    # input tool 1
-    tabItem(tabName = "Tool1",
-            fluidRow(
-              box(width = 6, title = "Substrates",
-                  checkboxGroupInput(inputId = "Substrate_groups", 
-                                     label = "Select your input substrates for the PCA", 
-                                     choices =  levels(as.factor(biowaste_nutrients$Diet_group)) , 
-                                     selected = "Food waste")
-              ),
-              box(width = 6, title = "PCA - Biplot", plotOutput("PCA_substrate_groups"))
-            )
-            
-            # Output of two tests written on server side
-            # fluidRow(
-            #   textOutput("txt"),
-            #   tableOutput("table")
-            # )
-            
-    )
-  )
-)
+    
+    tabItems(
+      
+      # input introduction
+      
+      tabItem(tabName = "intro",
+              fluidRow(
+                box(width = 12, 
+                    h1("Introduction to App: 'NAME'"),
+                    h2("Subtitle"),
+                    
+                    hr(),
+                    
+                    textOutput(outputId = "introtext")
+                )
+              )),
+      
+      
+      # input tool 1
+      tabItem(tabName = "tool1",
+              fluidRow(
+                box(width = 6, title = "Substrates",
+                    checkboxGroupInput(inputId = "Substrate_groups", 
+                                       label = "Select your input substrates for the PCA", 
+                                       choices =  levels(as.factor(biowaste_nutrients$Diet_group)) , 
+                                       selected = "Food waste")
+                ),
+                box(width = 6, title = "PCA - Biplot", plotOutput("PCA_substrate_groups"))
+              )
+              
+              # Output of two tests written on server side
+              # fluidRow(
+              #   textOutput("txt"),
+              #   tableOutput("table")
+              # )
+              
+      ), # close tab item tool1
+      
+      # input tool 1
+      tabItem(tabName = "tool2",
+              fluidRow(
+                box(width = 6, title = "Write a title",
+                    
+                ),
+                box(width = 6, title = "Write a title",
+                    
+                )
+              )
+      ), # close tab item tool2
+      
+      # input tool 1
+      tabItem(tabName = "tool3",
+              fluidRow(
+                box(width = 6, title = "Write a title",
+                    
+                ),
+                box(width = 6, title = "Write a title",
+                    
+                )
+              )
+      ), # close tab item tool3
+      
+      # input tool 1
+      tabItem(tabName = "tool4",
+              fluidRow(
+                box(width = 6, title = "Write a title",
+                    
+                ),
+                
+                box(width = 6, title = "Write a title",
+                    
+                )
+              )
+      ) # close tab item tool4
+    ) # close tab items
+  ) # close dashboard body
+) # close dashbord page
 
 
 # server ------------------------------------------------------------------
 
 server <- function(input, output) { 
+  
+  # Introduction Page
+  
+  output$introtext <- renderText(
+    "I suggest you write an introduction text to you app here. Cite relevant papers and add info that\n
+  helps people understand how the app works and what the tools are. As you can see, I have no clue how to do that nicely,\n
+  but search engines and StackOverflow will help you.")
   
   
   substr_groups <- reactive({ paste(input$Substrate_groups, collapse = ", ") })
