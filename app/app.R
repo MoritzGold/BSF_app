@@ -31,10 +31,14 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       menuItem("Introduction", icon = icon("info-circle")),
-      menuItem("Tool 1: PCA Biplot", tabName = "Tool1", icon = icon("map")),
-      menuItem("Tool 2: ...")
+      menuItem("PCA Biplot", tabName = "Tool1", icon = icon("map")),
+      menuItem("Nutrient composition", tabName = "Tool2",icon = icon("chart-pie")),
+      menuItem("Substrate mixture formulation", tabName = "Tool3",icon = icon("mortar-pestle")),
+      menuItem("Conversion performance", tabName = "Tool4",icon = icon("chart-bar"))
     )
   ),
+  
+
   
   dashboardBody(
   
