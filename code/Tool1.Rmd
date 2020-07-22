@@ -91,23 +91,23 @@ server <- function(input, output) {
       
       select(-Glucose,-Starch,-Ash_insoluable) %>% 
       
-      filter(Diet_group %in% input_Substrate_groups)
+      filter(Diet_group %in% input$Substrate_groups)
     
   })
     
 
     # remove columns with data description
     
-    biowaste_nutrients_clean <- 
+    biowaste_nutrients_clean <- reactive({
       
       biowaste_nutrients_subset() %>% 
       
-      select(7:11)
+      select(7:11)})
     
 
     # run PCA
     
-    pca_biowaste_nutrients <- PCA(biowaste_nutrients_clean(),scale.unit=TRUE)
+    pca_biowaste_nutrients <- reactive({PCA(biowaste_nutrients_clean(),scale.unit=TRUE)})
     
     
     # produce output based on manipulated data
