@@ -1,0 +1,148 @@
+---
+title: "Tool4"
+output: html_document
+---
+
+```{r include=FALSE}
+
+# clean Rs brain
+
+rm(list=ls()) 
+
+# load required packages
+
+library(shiny)
+library(shinydashboard)
+library(openxlsx)
+library(tidyverse)
+library(ggpubr)
+library(FactoMineR)
+library(factoextra)
+library(DT)
+
+```
+
+
+```{r}
+
+# load data
+
+biowaste_nutrients_narrow <- read.xlsx(xlsxFile =here::here("data/waste_sum.xlsx"),sheet = 1) %>% 
+  
+  gather(7:14,key = parameter,value = value) 
+
+```
+
+```{r}
+
+# use interface
+
+ui <- dashboardPage(
+  
+  dashboardHeader(),
+  
+  dashboardSidebar(
+    
+    menuItem("Tool2",tabName = "Tool2")
+  
+    ),
+ 
+   dashboardBody(
+   
+      # input tool 1
+     
+     tabItem(tabName = "Tool2",
+             
+             fluidRow(
+               
+               checkboxGroupInput(inputId = "Substrate_groups",label = "Substrate groups",choices = 
+                                    
+                                    levels(as.factor(biowaste_nutrients_narrow$Diet_group)),selected = "Food waste"),
+              
+               checkboxGroupInput(inputId = "Nutrient_parameter",label = "Nutrient parameter",choices = 
+                                    
+                                    levels(as.factor(biowaste_nutrients_narrow$parameter)),selected = "Ash"),
+               
+               plotOutput("Boxplot_substrate_groups"),
+               
+               dataTableOutput("Nutrient_composition_summary")
+                
+             )
+             )
+     )
+)
+
+```
+
+```{r}
+
+# server
+
+#server <- function(input, output) { }
+
+server <- function(input, output) { 
+  
+
+   biowaste_nutrients_narrow_subset <-
+  
+    reactive({
+    
+    # select Substrate groups based on input
+    
+      biowaste_nutrients_narrow %>% 
+  
+      filter(Diet_group %in% input$Substrate_groups & parameter %in% input$Nutrient_parameter)
+        
+  })
+    
+
+   # calculate descriptive statistics
+   
+    biowaste_nutrients_stats <- reactive({
+   
+     biowaste_nutrients_narrow_subset() %>% 
+  
+     group_by(Diet_group,parameter) %>% 
+   
+     summarise(n=n(),
+            mean=round(mean(value,na.rm = TRUE),1),
+            sd=round(mean(value,na.rm = TRUE),1),
+            median=round(median(value,na.rm = TRUE),1),
+            max=round(max(value,na.rm = TRUE),1),
+            min=round(min(value,na.rm = TRUE),1))
+      
+    })
+   
+
+    # produce boxplot output based on manipulated data
+
+    output$Boxplot_substrate_groups <- renderPlot({
+     
+      biowaste_nutrients_narrow_subset()  %>% 
+  
+      ggplot(aes(Diet_group,value)) +
+  
+      geom_boxplot() +
+  
+      geom_point() +
+  
+      labs(y = "% dm", x="", title = "Biowaste nutrients") +
+  
+      facet_wrap(~parameter) +
+  
+      coord_flip()
+    })
+
+    
+   # produce summmary table 
+    
+    output$Nutrient_composition_summary <- renderDT({biowaste_nutrients_stats()})
+
+}
+    
+```
+
+```{r}
+shinyApp(ui = ui,server = server)
+```
+
