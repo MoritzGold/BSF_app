@@ -19,15 +19,13 @@ library(DT)
 
 # load data ---------------------------------------------------------------
 
-## data for tool 1
+## data for tool 2
 
 biowaste_nutrients <- read.xlsx(xlsxFile = here::here("data/waste_sum.xlsx"), sheet = 1) 
 performance <- read.xlsx(xlsxFile = here::here("data/performance_sum.xlsx"), sheet = 1)
 
-## data for tool 2
-
 biowaste_nutrients_narrow <- read.xlsx(xlsxFile =here::here("data/waste_sum.xlsx"),sheet = 1) %>% 
-  gather(7:14,key = parameter,value = value) 
+  gather(7:14,key = Nutrient_parameter,value = value) 
 
 ## data for tool 3
 
@@ -36,7 +34,7 @@ biowaste_nutrients_narrow <- read.xlsx(xlsxFile =here::here("data/waste_sum.xlsx
 ## data for tool 4
 
 performance_narrow <- read.xlsx(xlsxFile = here::here("data/performance_sum.xlsx"), sheet = 1) %>% 
-  gather(11:16,key = parameter,value = value,na.rm = TRUE)
+  gather(11:16,key = Performance_indicator,value = value,na.rm = TRUE)
 
 
 # ui ----------------------------------------------------------------------
@@ -82,7 +80,7 @@ ui <- dashboardPage(
                                                          choices = levels(as.factor(biowaste_nutrients_narrow$Diet_group)),selected = "Food waste")),
                     
                     column(width = 6, checkboxGroupInput(inputId = "Nutrient_parameter",label = "Nutrient parameter",
-                                                         choices = levels(as.factor(biowaste_nutrients_narrow$parameter)),selected = "Ash")),
+                                                         choices = levels(as.factor(biowaste_nutrients_narrow$Nutrient_parameter)),selected = "Ash")),
                 ),
                 
                 box(width = 6, title = "PCA - Biplot", 
@@ -134,7 +132,7 @@ ui <- dashboardPage(
                                                          selected = "Food waste - Household")),
                     
                     column(width = 6, checkboxGroupInput(inputId = "Performance_indicator_tool4", label = "Performance indicator", 
-                                                         choices = levels(as.factor(performance_narrow$parameter)), 
+                                                         choices = levels(as.factor(performance_narrow$Performance_indicator)), 
                                                          selected = "Bioconversion_rate_perc_DM"))
                     
                 ),
@@ -239,7 +237,7 @@ server <- function(input, output) {
       
       biowaste_nutrients_narrow %>% 
         
-        filter(Diet_group %in% input$Substrate_groups & parameter %in% input$Nutrient_parameter)
+        filter(Diet_group %in% input$Substrate_groups & Nutrient_parameter %in% input$Nutrient_parameter)
       
     })
   
@@ -269,7 +267,7 @@ server <- function(input, output) {
       ## Alternative which shows the overlying points a little nicer
       geom_jitter(width = 0.1) + 
       labs(y = "% dm", x="", title = "Biowaste nutrients") +
-      facet_wrap(~parameter) +
+      facet_wrap(~Nutrient_parameter) +
       coord_flip()
   })
   
@@ -292,7 +290,7 @@ server <- function(input, output) {
       performance_narrow %>% 
         filter(
           Diet_group %in% input$Substrate_groups_tool4 & 
-            parameter %in% input$Performance_indicator_tool4
+            Performance_indicator %in% input$Performance_indicator_tool4
           )
       
     })
@@ -303,7 +301,7 @@ server <- function(input, output) {
   performance_narrow_stats <- reactive({
     
     performance_summary_narrow_subset() %>% 
-      group_by(Diet_group, parameter) %>% 
+      group_by(Diet_group, Performance_indicator) %>% 
       summarise(n = n(),
                 mean = round(mean(value, na.rm = TRUE), 1),
                 sd = round(mean(value, na.rm = TRUE), 1),
@@ -322,7 +320,7 @@ server <- function(input, output) {
       geom_boxplot() +
       geom_point() +
       labs(y = "% dm", x="", title = "Biowaste nutrients") +
-      facet_wrap(~parameter) +
+      facet_wrap(~Performance_indicator) +
       coord_flip()
   })
   
