@@ -1,7 +1,7 @@
 # description -------------------------------------------------------------
 
 # A Shiny app ...
-# Author: Moritz Gold
+# Author: Moritz Gold and Lars Schöbitz
 # Date: 2020-07-16
 # License: MIT License
 
@@ -50,7 +50,7 @@ ui <- dashboardPage(
       menuItem("Introduction", tabName = "intro", icon = icon("info-circle")),
       menuItem("Nutrient composition", tabName = "tool2",icon=icon("chart-pie")),
       menuItem("Substrate mixture formulation", tabName = "tool3",icon=icon("mortar-pestle")),
-      menuItem("Conversion performance", tabName = "tool4", icon=icon("char-bar"))
+      menuItem("Conversion performance", tabName = "tool4", icon=icon("chart-bar"))
     )
   ),
   
