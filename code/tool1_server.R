@@ -10,6 +10,8 @@ library(magrittr)
 library(dplyr)
 library(FactoMineR)
 library(factoextra)
+library(ggrepel)
+
 
 # load data
 
@@ -40,6 +42,8 @@ pca_biowaste_nutrients <- PCA(biowaste_nutrients_clean,scale.unit=TRUE)
 
 # plot PCA
 
+p <-
+
 fviz_pca_biplot(pca_biowaste_nutrients,
                   geom.ind = "point",
                   fill.ind = biowaste_nutrients_subset$Diet_group,
@@ -52,4 +56,26 @@ fviz_pca_biplot(pca_biowaste_nutrients,
                   legend.title = "Substrates",
                   alpha.var=0.5,
                   repel = TRUE)
+# get coordindates
+
+
+pca_coordinates <-
+
+pca_biowaste_nutrients$ind$coord %>% as_tibble() %>% 
+  
+  select(Dim.1,Dim.2) %>% 
+
+  bind_cols(biowaste_nutrients_subset$Diet) %>% 
+  
+  rename("Diet"="...3")
+
+
+# add labels to the plot based on the coordinates
+
+  p + 
+    
+    # geom_point(aes(x=pca_coordinates$Dim.1,y=pca_coordinates$Dim.2)) + 
+    
+    geom_text_repel(data=pca_coordinates,aes(x=Dim.1,y=Dim.2,label=Diet))
+    
 
