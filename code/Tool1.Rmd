@@ -3,6 +3,19 @@ title: "Tool1"
 output: html_document
 ---
 
+```{r}
+# TODO
+
+# Add box explaining contents and provide references
+# Add infomrmation of the references of the data (add link text to waste_sum and add colomn to summary table)
+# Add option to add label to the PCA
+
+# Make plots nicer
+# theme_bw
+# change names nutrient parameters
+
+```
+
 ```{r include=FALSE}
 
 # clean Rs brain
@@ -123,6 +136,7 @@ server <- function(input, output) {
                 arrowsize = 1,
                 labelsize = 4,
                 mean.point = FALSE,
+                label = 
                 legend.title = "Substrates",
                 alpha.var=0.5,
                 repel = TRUE)
