@@ -7,7 +7,8 @@ output: html_document
 
 # TODO
 
-# Add fields for moisture content
+# Add fields for moisture content & add possibility to use literature value
+# Put first version of app on Rstudio so CZ can look at it
 
 ```
 
@@ -88,15 +89,18 @@ ui <- dashboardPage(
              
              fluidRow(
                
-                   box(with = 6,title="Select formulation ingredients",
+                   box(with = 3,title="Select formulation ingredients",
                    
                    uiOutput("col1")),
                
                
-                box(with = 6,title="Input quantity per ingredient",
+                box(with = 3,title="Input quantity per ingredient",
                    
                    uiOutput("col2")),
                
+                box(with = 3,title="Input moisture content",
+                   
+                   uiOutput("col3"))
              ),
                
               #third row
@@ -136,6 +140,7 @@ server <- function(input, output, session) {
   
   ingredients <- reactive(paste0("col1", seq_len(input$n)))
   amounts <- reactive(paste0("col2", seq_len(input$n)))
+  MC <- reactive(paste0("col3", seq_len(input$n)))
   
   # ui: ingredients
   
@@ -148,6 +153,14 @@ server <- function(input, output, session) {
   
   output$col2 <- renderUI({
     map(amounts(), ~ numericInput(.x, NULL,value = 1))
+                                  
+        
+  })
+  
+  # ui: amounts
+  
+  output$col3 <- renderUI({
+    map(MC(), ~ numericInput(.x, NULL,value = 1))
                                   
         
   })
