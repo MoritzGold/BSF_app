@@ -1,0 +1,271 @@
+---
+title: "Tool3"
+output: html_document
+---
+
+```{r}
+
+# TODO
+
+# Add fields for moisture content
+
+```
+
+
+
+```{r include=FALSE}
+
+# clean Rs brain
+
+rm(list=ls()) 
+
+# load required packages
+
+library(shiny)
+library(shinydashboard)
+library(openxlsx)
+library(tidyverse)
+library(ggpubr)
+library(FactoMineR)
+library(factoextra)
+library(DT)
+
+```
+
+```{r}
+
+# load data
+
+biowaste_nutrients_narrow <- read.xlsx(xlsxFile =here::here("data/waste_sum.xlsx"),sheet = 1) %>% 
+  
+  gather(7:14,key = parameter,value = value) 
+
+  unused_nutrients <- c("Glucose","Starch","Ash_insoluable")
+
+```
+
+```{r}
+
+# user interface
+
+ui <- dashboardPage(
+  
+  dashboardHeader(),
+  
+  dashboardSidebar(
+    
+    menuItem("Tool3",tabName = "Tool3")
+  
+    ),
+ 
+   dashboardBody(
+   
+      # input tool 2
+     
+     tabItem(tabName = "Tool3",
+             
+             #first row
+             
+             fluidRow(
+               
+               
+               
+               # select the unit that should be used for formulation
+               # select the number of ingredients (min 2 - maximum 6)
+               
+               box(width = 4, title = "Select unit and number of ingredients",
+                   
+                    selectInput(inputId = "formulation_unit",label = "Formulation unit",choices = 
+                             
+                             c("kg wet substrate","% dry mass","% wet mass"),selected = "kg wet substrate"),
+                          
+                    numericInput("n", "Number of ingredients", value = 2, min = 2,max=6)),
+               
+               
+             ),
+             
+             # second row
+             
+             fluidRow(
+               
+                   box(with = 6,title="Select formulation ingredients",
+                   
+                   uiOutput("col1")),
+               
+               
+                box(with = 6,title="Input quantity per ingredient",
+                   
+                   uiOutput("col2")),
+               
+             ),
+               
+              #third row
+             
+              fluidRow(
+                
+                box(width = 12,
+                    
+                    # print a message whether the formulation is complete
+               
+                    textOutput("Message_100perc"),
+                    
+                    # show the nutrient composition of the substrate
+               
+                    plotOutput("Nutrients_formulation_plot")),
+                    
+                  dataTableOutput("Nutrients_formulation_dt")
+                
+              )
+              
+     )
+     
+   )
+  
+)
+
+```
+
+
+```{r}
+
+# server
+
+server <- function(input, output, session) {
+  
+  # save input field data
+  
+  ingredients <- reactive(paste0("col1", seq_len(input$n)))
+  amounts <- reactive(paste0("col2", seq_len(input$n)))
+  
+  # ui: ingredients
+  
+  output$col1 <- renderUI({
+    map(ingredients(), ~ selectInput(.x, label = NULL,choices = levels(as.factor(biowaste_nutrients_narrow$Diet_group))))
+        
+  })
+  
+  # ui: amounts
+  
+  output$col2 <- renderUI({
+    map(amounts(), ~ numericInput(.x, NULL,value = 1))
+                                  
+        
+  })
+  
+  # retrieve vectors with amounts and ingredients
+
+  ingredient_values <- reactive({map_chr(ingredients(), ~ input[[.x]])})
+  amount_values <- reactive({map_chr(amounts(), ~ input[[.x]])})
+
+  # save vectors as df
+                                
+  ingredient_amount <- reactive({
+
+    bind_cols(ingredient_values(),amount_values()) %>% 
+      
+      setNames(c("Diet_group","Amount"))
+
+  })
+
+  
+  # calculate mean, min, max of nutrient paramaters based on the selected ingredients
+  
+  biowaste_formulation <- reactive({
+    
+    biowaste_nutrients_narrow %>% 
+      
+      filter(Diet_group %in% ingredient_amount()$Diet_group) %>% 
+      
+      filter(!parameter %in% unused_nutrients)  %>% 
+      
+      ungroup() %>% 
+      
+      group_by(Diet_group,parameter) %>% 
+      
+      summarise(mean = round(mean(value,na.rm = TRUE), 1),
+                max = round(max(value,na.rm = TRUE), 1),
+                min = round(min(value,na.rm = TRUE), 1)) %>% 
+
+      # add the amount per diet group
+
+      left_join(ingredient_amount(),by=("Diet_group")) %>% 
+  
+      gather(3:5,key = descriptive,value = value,na.rm = TRUE) %>% 
+      
+      ungroup() %>%
+
+      mutate(contribution=value*as.numeric(Amount)) %>% 
+
+      group_by(parameter,descriptive) %>%
+
+      summarise(formulation_value=sum(contribution)/sum(as.numeric(ingredient_amount()$Amount)))
+  
+  })
+
+  
+  # transform df in narrow form
+    
+    biowaste_formulation_wide <- reactive({
+    
+    biowaste_formulation() %>% 
+      
+      spread(key = descriptive,value = formulation_value)
+    
+    })  
+    
+  # calculate max value for dynamic y axis limit
+    
+    max_value <- reactive({
+
+      biowaste_formulation_wide() %>% 
+      
+      ungroup() %>%   
+        
+      summarise(max=max(max)) %>% 
+        
+      pull() 
+      
+      })
+    
+    
+  # make plot
+    
+    output$Nutrients_formulation_plot <- renderPlot({
+    
+    biowaste_formulation_wide() %>% 
+    
+      ggplot(aes(parameter,mean)) +
+      
+      geom_point(size=5) +
+      
+      geom_errorbar(aes(ymin=min,ymax=max),width=.1,linetype=5) +
+      
+      scale_y_continuous(limits = c(0, max_value())) +
+      
+      theme_bw() +
+      
+      xlab("Nutrient parameter") +
+      
+      ylab("Nutrient content")
+  
+           
+  })
+  
+  # filter data based on selected ingredients
+
+  output$Nutrients_formulation_dt <- renderDT({biowaste_formulation_wide()})  
+  
+
+  
+}
+
+```
+
+
+```{r}
+
+shinyApp(ui = ui,server = server)
+
+
+```
+
