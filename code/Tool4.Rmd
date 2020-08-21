@@ -58,9 +58,7 @@ ui <- dashboardPage(
                                     
                                     levels(as.factor(performance_narrow$Diet_group)),selected = "Food waste"),
               
-               checkboxGroupInput(inputId = "Performance_indicator",label = "Performance indicator",choices = 
-                                    
-                                    levels(as.factor(performance_narrow$parameter)),selected = "Ash"),
+               checkboxGroupInput(inputId = "Performance_indicator",label = "Performance indicator"),
                
                plotOutput("Boxplot_substrate_groups"),
                
@@ -68,15 +66,25 @@ ui <- dashboardPage(
                 
              )
              )
-     )
+   )
+
 )
-
-
 ```
 
 ``` {r}
 
-server <- function(input, output) { 
+server <- function(input, output,session) { 
+  
+   observe({
+     
+     Performance_indicator_availability <- performance_narrow %>% filter(Diet_group  %in% input$Substrate_groups)
+     
+     updateCheckboxGroupInput(session, "Performance_indicator",
+      label = "Performance indicator",
+      choices = levels(as.factor(Performance_indicator_availability$parameter))
+      # selected =  levels(as.factor(Performance_indicator_availability$parameter))
+     )
+   })
   
   
    performance_summary_narrow_subset <-
