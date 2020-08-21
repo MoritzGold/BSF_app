@@ -19,7 +19,7 @@ library(DT)
 
 # load data ---------------------------------------------------------------
 
-## data for tool 2
+## data for tool 1/2
 
 biowaste_nutrients <- read.xlsx(xlsxFile = here::here("data/waste_sum.xlsx"), sheet = 1) 
 performance <- read.xlsx(xlsxFile = here::here("data/performance_sum.xlsx"), sheet = 1)
@@ -27,9 +27,7 @@ performance <- read.xlsx(xlsxFile = here::here("data/performance_sum.xlsx"), she
 biowaste_nutrients_narrow <- read.xlsx(xlsxFile =here::here("data/waste_sum.xlsx"),sheet = 1) %>% 
   gather(7:14,key = Nutrient_parameter,value = value) 
 
-## data for tool 3
-
-# TODO
+## data for tool 3 = data for tool 2
 
 ## data for tool 4
 
@@ -61,11 +59,65 @@ ui <- dashboardPage(
       tabItem(tabName = "intro",
               fluidRow(
                 box(width = 12, 
-                    h1("Introduction to App: 'BSFL-Explorer'"),
-                    h2("Efficient substrates for black soldier fly larvae (BSFL) biowaste "),
+                    h2("Introduction to App: 'BSFL-Explorer'"),
+                    h3("Performance of black soldier fly larvae with differnt biowastes"),
                     
                     hr(),
                     
+                    p("Welcome to BSFL-explorer! A main challenge for planners and operators of black soldier fly larvae 
+                    biowaste conversion is knowledge on the performance of different biowastes. This App provides and visualizes 
+                    data regarding the conversion of biowastes with black soldier fly larvae."),
+                    
+                    h2("Features"),
+                    
+                    h3("Nutrient composition"), 
+                    
+                    h4("Goal"),   
+                    p(),   
+                    
+                    h4("Background"),
+                       
+                    p("The substrate nutrient composition has a great influence on conversion performance. 
+                      In general, substrates high in digestible nutrients (i.e. protein, digestible carbohydrates, lipid) and low 
+                      in fibres and ash can be expected to have a highe conversion performance."), 
+                    
+                    p(),
+                    
+                    h3("Biowaste mixture formulation"),
+                    
+                    h4("Goal"),
+                    
+                    h4("Background"),
+                    
+                    h3("Conversion performance"),
+                    
+                    h4("Goal"),
+                    
+                    h4("Background"),
+                    
+                    h3("Additional resources"),
+                    
+                    p("step-by-step guide"),
+                    
+                    p("Gold M.,…, Mathys, A. (2020a). Biowaste treatment with black soldier fly larvae: Increasing performance 
+                    through the formulation of biowastes based on protein and carbohydrates. Waste Management, 102, 319-329.",a(href="https://www.sciencedirect.com/science/article/pii/S0956053X19306658","Available here")), 
+                    
+                    p("Gold review"),
+                    
+                    p("Fonseca: Mixture"),
+                    
+                    p("feedipedia"),
+                    
+                    p("Food explorer database"),
+                    
+                    p("Nyakeri"),
+                    
+                    p("Lalander"),
+                    
+                    p("Fonseca: Flies are what they eat"),
+                    
+                    h2("Acknowledgements")
+                
                     # textOutput(outputId = "introtext")
                 )
               )),
@@ -75,16 +127,19 @@ ui <- dashboardPage(
               
               # first row
               fluidRow(
-                box(width = 6, title = "Write a title",
+                box(width = 6, title = "Select substrate and nutrient parameter of your interest",
                     column(width = 6, checkboxGroupInput(inputId = "Substrate_groups", label = "Substrate groups",
-                                                         choices = levels(as.factor(biowaste_nutrients_narrow$Diet_group)),selected = "Food waste")),
+                                                         choices = levels(as.factor(biowaste_nutrients_narrow$Diet_group)),selected = "Food waste")),  
+                           
+                          
                     
                     column(width = 6, checkboxGroupInput(inputId = "Nutrient_parameter",label = "Nutrient parameter",
                                                          choices = levels(as.factor(biowaste_nutrients_narrow$Nutrient_parameter)),selected = "Ash")),
                 ),
                 
-                box(width = 6, title = "PCA - Biplot", 
-                    plotOutput("PCA_substrate_groups")
+                box(width = 6, title = "General nutrient composition of different biowaste groups", 
+                    plotOutput("PCA_substrate_groups"),
+                    checkboxInput(inputId = "Diet_label", label = "Add diet labels",value = FALSE)
                 
                 
                 )
@@ -93,14 +148,14 @@ ui <- dashboardPage(
               # second row
               
               fluidRow(
-                box(width = 12, title = "Write a title",
+                box(width = 12, title = "Nutrient composition (boxplot)",
                     plotOutput("Boxplot_substrate_groups")
               )
               ),
               
               # second row
               fluidRow(
-                box(width = 12, title = "Write a title",
+                box(width = 12, title = "Nutrient composition (tabular form)",
                     dataTableOutput("Nutrient_composition_summary")
                 )
               )
@@ -125,7 +180,7 @@ ui <- dashboardPage(
               
               # first row
               fluidRow(
-                box(width = 6, title = "Write a title",
+                box(width = 6, title = "Select substrate and conversion performance indicator of your interest",
                     
                     column(width = 6, checkboxGroupInput(inputId = "Substrate_groups_tool4", label = "Substrate groups", 
                                                          choices =  levels(as.factor(performance_narrow$Diet_group)), 
@@ -136,7 +191,7 @@ ui <- dashboardPage(
                                                          selected = "Bioconversion_rate_perc_DM"))
                     
                 ),
-                box(width = 6, title = "Write a title",
+                box(width = 6, title = "Performance indicator (boxplot)",
                     plotOutput("Boxplot_substrate_groups_tool4"),
                     
                 ),
@@ -145,7 +200,7 @@ ui <- dashboardPage(
                 
                 # second row
                 fluidRow(
-                  box(width = 12, title = "Write a title",
+                  box(width = 12, title = "Performance indicator (tabular form)",
                       dataTableOutput("Performance_indicator_summary_tool4")
                   )
                 )
