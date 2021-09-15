@@ -1,0 +1,13 @@
+name: BSF_app
+title: BSF_app
+username:
+account: moritzgold
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2803536
+bundleId: 3657884
+url: https://moritzgold.shinyapps.io/BSF_app/
+when: 1600793824.69695
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: README.md|structure.html|structure.Rmd|app/app.R|app/app_play_around.R|app/server.R|app/ui.R|www/eawag_logo.png|archive|code
